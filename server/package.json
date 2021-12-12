@@ -1,0 +1,26 @@
+{
+  "name": "citcoinsapi",
+  "version": "0.0.1",
+  "description": "Backend for citcoins, a crypto price discovery tool",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/simosavonen/citcoins.git"
+  },
+  "keywords": [
+    "REST",
+    "API",
+    "BITCOIN",
+    "CRYPTO"
+  ],
+  "author": "Simo Savonen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/simosavonen/citcoins/issues"
+  },
+  "homepage": "https://github.com/simosavonen/citcoins#readme"
+}
