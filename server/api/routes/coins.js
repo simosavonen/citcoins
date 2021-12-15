@@ -1,25 +1,25 @@
 const express = require('express')
 const router = express.Router()
 
-router.get('/', (req, res, next) => {
-    res.status(200).json({
-        "_links": {
-            "list": {
-                "href": "/list"
-            },
-        }
-    })
+router.get('/', (req, res) => {
+  res.status(200).json({
+    '_links': {
+      'list': {
+        'href': '/list'
+      },
+    }
+  })
 })
 
 // lists the supported cryptocurrencies
-router.get('/list', (req, res, next) => {
-    res.status(200).json([
-        {
-            "id": "bitcoin",
-            "symbol": "btc",
-            "name": "Bitcoin"
-        },
-    ])
+router.get('/list', (req, res) => {
+  res.status(200).json([
+    {
+      'id': 'bitcoin',
+      'symbol': 'btc',
+      'name': 'Bitcoin'
+    },
+  ])
 })
 
 module.exports = router

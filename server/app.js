@@ -6,16 +6,16 @@ const rootRoutes = require('./api/routes/root')
 const coinRoutes = require('./api/routes/coins')
 
 const unknownEndpoint = (req, res) => {
-    res.status(404).send({ error: 'unknown endpoint' })
+  res.status(404).send({ error: 'unknown endpoint' })
 }
 
 const errorHandler = (error, req, res, next) => {
-    console.error(error.message)
+  console.error(error.message)
 
-    // handle different error types here,
-    // maybe send errors to sentry.io
+  // handle different error types here,
+  // maybe send errors to sentry.io
 
-    next(error)
+  next(error)
 }
 
 app.use(morgan('dev'))
