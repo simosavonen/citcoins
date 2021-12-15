@@ -2,7 +2,7 @@
   "name": "citcoinsapi",
   "version": "0.0.1",
   "description": "Backend for citcoins, a crypto price discovery tool",
-  "main": "index.js",  
+  "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/simosavonen/citcoins#readme",
   "dependencies": {
+    "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "morgan": "^1.10.0",
     "node-fetch": "^2.6.6"
