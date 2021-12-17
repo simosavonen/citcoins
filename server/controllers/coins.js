@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const config = require('../utils/config')
+const fetch = require('node-fetch')
 
 const coinIsSupported = (request, response) => {  
   if(config.COINS.some(c => c.id !== request.params.id)) {
@@ -43,11 +44,13 @@ router.get('/:id', (req, res) => {
   }  
 })
 
-router.get('/:id/market_chart', (req, res) => {
+router.get('/:id/market_chart', async (req, res) => {
   if(coinIsSupported(req, res)) {
-    res.status(200).json({
-      'success': 'market chart for ' + req.params.id 
-    })
+    const api_url = 'https://api.coingecko.com/api/v3/coins/'
+    const options = '?vs_currency=eur&days=100'
+    await fetch(api_url + req.params.id + '/market_chart' + options)
+      .then(response => response.json())
+      .then(data => res.status(200).json(data))
   }  
 })
 
