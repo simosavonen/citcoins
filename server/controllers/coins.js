@@ -48,9 +48,21 @@ router.get('/:id/market_chart', async (req, res) => {
   if(coinIsSupported(req, res)) {
     const api_url = 'https://api.coingecko.com/api/v3/coins/'
     const options = '?vs_currency=eur&days=100'
-    await fetch(api_url + req.params.id + '/market_chart' + options)
-      .then(response => response.json())
-      .then(data => res.status(200).json(data))
+
+    const response = await fetch(api_url + req.params.id + '/market_chart' + options)
+    let data = await response.json()
+
+    const max_volume = data.total_volumes.reduce((prev, current) => (prev[1] > current[1]) ? prev : current, 0)
+    data = {...data, 'max_volume': max_volume}
+    
+    res.status(200).json({
+      ...data,
+      '_links': {
+        'range': {
+          'href': '/range'
+        }
+      }
+    })
   }  
 })
 
