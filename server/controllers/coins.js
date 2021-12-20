@@ -47,6 +47,45 @@ const longestDowntrend = (prices) => {
   return trend
 }
 
+const maximizeProfit = (prices) => {
+  let max_profit = { 'max_profit': { 'should buy': false, 'profit': 0 } }
+  let buy_price = prices[0]
+  let sell_price, best_sell_price, best_buy_price
+  let profit = 0
+
+  for(let i = 0; i < prices.length - 1; i++) {
+    // prices = [[unix timestamp, price], ...]
+
+    // check each price once
+    sell_price = prices[i + 1]
+
+    // lower price becomes the new price to buy at
+    if(sell_price[1] < buy_price[1]) {
+      buy_price = sell_price
+    }
+
+    // store the best prices if we found a bigger profit
+    else if(profit < sell_price[1] - buy_price[1]) {
+      profit = sell_price[1] - buy_price[1]
+      best_buy_price = buy_price
+      best_sell_price = sell_price
+    }
+  }
+
+  if(profit > 0) {
+    max_profit = { 'max_profit': {
+      'should buy': true,
+      'when to buy': best_buy_price,
+      'when to sell': best_sell_price,
+      'profit': profit
+    }
+    }
+  }
+
+  return max_profit
+
+}
+
 router.get('/', (req, res) => {
   res.status(200).json({
     '_links': {
@@ -95,10 +134,14 @@ router.get('/:id/market_chart', async (req, res) => {
     // todo: only add these if user asked for them
     // maybe create an '/coins/insights' endpoint
     const trend = longestDowntrend(data.prices)
+
+    // filter the date range prior to giving it as an argument
+    const max_profit = maximizeProfit(data.prices)
     
     res.status(200).json({
       ...data,
       ...trend,
+      ...max_profit,
       'max_volume': max_volume,
       '_links': {
         'range': {
