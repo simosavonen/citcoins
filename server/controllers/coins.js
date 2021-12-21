@@ -152,4 +152,32 @@ router.get('/:id/market_chart', async (req, res) => {
   }  
 })
 
+router.get('/:id/market_chart/range', async (req, res) => {
+  if(coinIsSupported(req, res)) {
+    const api_url = 'https://api.coingecko.com/api/v3/coins/' 
+      + req.params.id + '/market_chart/range'
+    let options = '?vs_currency=eur'  
+
+    // validate query parameters    
+    const from = new Date(parseInt(req.query.from))
+    const to = new Date(parseInt(req.query.to))
+
+    if(from.getTime() > 0 && to.getTime() > 0 && from.getTime() < to.getTime()) {
+      options += '&from=' + from.getTime() + '&to=' + to.getTime()
+
+      const response = await fetch(api_url + options)
+      let data = await response.json()
+  
+      res.status(200).json(data) 
+
+    } else {
+      res.status(400).send({ 
+        'error': 'malformed request syntax',
+        'from': 'required query parameter, unix timestamp',
+        'to': 'required query parameter, unix timestamp' 
+      })
+    }     
+  }  
+})
+
 module.exports = router
