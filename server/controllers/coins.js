@@ -3,14 +3,30 @@ const router = express.Router()
 const config = require('../utils/config')
 const fetch = require('node-fetch')
 
-const coinIsSupported = (request, response) => {  
-  if(config.COINS.some(c => c.id !== request.params.id)) {
-    response.status(404).json({
+
+const unsupportedCoinError = (req, res) => {  
+  if(config.COINS.some(c => c.id !== req.params.id)) {
+    res.status(404).json({
       'error': 'unsupported cryptocurrency'
     })
-    return false    
+    return true    
   }
-  return true
+  return false
+}
+
+const invalidTimestampsError = (req, res) => {
+  const from = new Date(parseInt(req.query.from))
+  const to = new Date(parseInt(req.query.to))
+  if(from.getTime() > 0 && to.getTime() > 0 && from.getTime() < to.getTime()) {
+    return false
+  } else {
+    res.status(400).send({ 
+      'error': 'invalid timestamps',
+      'from': 'required query parameter, unix timestamp',
+      'to': 'required query parameter, unix timestamp'
+    })
+    return true
+  }
 }
 
 // todo: move these into a helper file
@@ -102,82 +118,66 @@ router.get('/list', (req, res) => {
 })
 
 router.get('/:id', (req, res) => {
-  if(coinIsSupported(req, res)) {
-    const coin = config.COINS.filter(c => c.id === req.params.id)
+  if(unsupportedCoinError(req, res)) return
 
-    res.status(200).json({
-      ...coin[0],
-      '_links': {
-        'market_chart': {
-          'href': '/market_chart'
-        }
+  const coin = config.COINS.filter(c => c.id === req.params.id)
+
+  res.status(200).json({
+    ...coin[0],
+    '_links': {
+      'market_chart': {
+        'href': '/market_chart'
       }
-    })
-
-  }  
+    }
+  })    
 })
 
 router.get('/:id/market_chart', async (req, res) => {
-  if(coinIsSupported(req, res)) {
-    const api_url = 'https://api.coingecko.com/api/v3/coins/'
-    const options = '?vs_currency=eur&days=100'
+  if(unsupportedCoinError(req, res)) return
 
-    const response = await fetch(api_url + req.params.id + '/market_chart' + options)
-    let data = await response.json()
+  const api_url = `https://api.coingecko.com/api/v3/coins/${req.params.id}/market_chart`
+  const options = '?vs_currency=eur&days=100'
 
-    // data = {'prices': [[unix timestamp, price], ...],
-    // 'market_caps': [[unix timestamp, market cap], ...],
-    // 'total_volumes': [[unix timestamp, total volume], ...]}
+  const response = await fetch(api_url + options)
+  let data = await response.json()
 
-    const max_volume = data.total_volumes.reduce((prev, current) => (prev[1] > current[1]) ? prev : current, 0)
+  // data = {'prices': [[unix timestamp, price], ...],
+  // 'market_caps': [[unix timestamp, market cap], ...],
+  // 'total_volumes': [[unix timestamp, total volume], ...]}
+
+  const max_volume = data.total_volumes.reduce((prev, current) => (prev[1] > current[1]) ? prev : current, 0)
    
-    // todo: only add these if user asked for them
-    // maybe create an '/coins/insights' endpoint
-    const trend = longestDowntrend(data.prices)
+  // todo: only add these if user asked for them
+  // maybe create an '/coins/insights' endpoint
+  const trend = longestDowntrend(data.prices)
 
-    // filter the date range prior to giving it as an argument
-    const max_profit = maximizeProfit(data.prices)
+  // filter the date range prior to giving it as an argument
+  const max_profit = maximizeProfit(data.prices)
     
-    res.status(200).json({
-      ...data,
-      ...trend,
-      ...max_profit,
-      'max_volume': max_volume,
-      '_links': {
-        'range': {
-          'href': '/range'
-        }
+  res.status(200).json({
+    ...data,
+    ...trend,
+    ...max_profit,
+    'max_volume': max_volume,
+    '_links': {
+      'range': {
+        'href': '/range'
       }
-    })
-  }  
+    }
+  })    
 })
 
 router.get('/:id/market_chart/range', async (req, res) => {
-  if(coinIsSupported(req, res)) {
-    const api_url = 'https://api.coingecko.com/api/v3/coins/' 
-      + req.params.id + '/market_chart/range'
-    let options = '?vs_currency=eur'  
+  if(unsupportedCoinError(req, res)) return
+  if(invalidTimestampsError(req, res)) return
 
-    // validate query parameters    
-    const from = new Date(parseInt(req.query.from))
-    const to = new Date(parseInt(req.query.to))
+  const api_url = `https://api.coingecko.com/api/v3/coins/${req.params.id}/market_chart/range`
+  const options = `?vs_currency=eur&from=${req.query.from}&to=${req.query.to}`
 
-    if(from.getTime() > 0 && to.getTime() > 0 && from.getTime() < to.getTime()) {
-      options += '&from=' + from.getTime() + '&to=' + to.getTime()
-
-      const response = await fetch(api_url + options)
-      let data = await response.json()
+  const response = await fetch(api_url + options)
+  let data = await response.json()
   
-      res.status(200).json(data) 
-
-    } else {
-      res.status(400).send({ 
-        'error': 'malformed request syntax',
-        'from': 'required query parameter, unix timestamp',
-        'to': 'required query parameter, unix timestamp' 
-      })
-    }     
-  }  
+  res.status(200).json(data)
 })
 
 module.exports = router
