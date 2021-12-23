@@ -171,13 +171,34 @@ router.get('/:id/market_chart/range', async (req, res) => {
   if(unsupportedCoinError(req, res)) return
   if(invalidTimestampsError(req, res)) return
 
+  let from = parseInt(req.query.from)
+  let to = parseInt(req.query.to) + 60*60
+
   const api_url = `https://api.coingecko.com/api/v3/coins/${req.params.id}/market_chart/range`
-  const options = `?vs_currency=eur&from=${req.query.from}&to=${req.query.to}`
+  let options = `?vs_currency=eur&from=${from}&to=${to}`
+
+  // for this assigment, force coingecko to return daily data
+  // by ensuring we always ask data for at least 91 days
+  const ninetyoneDays = 60*60*24*91
+  if(to - from < ninetyoneDays) {
+    options = `?vs_currency=eur&from=${to - ninetyoneDays}&to=${to}`
+  } 
 
   const response = await fetch(api_url + options)
-  let data = await response.json()
+  let data = await response.json()  
+
+  // data has the timestamps in milliseconds
+  const fromInMs = from * 1000
+  const toInMs = to * 1000
+
+  // return to user only the portion of the data they asked for
+  const filtered = {
+    'prices': data.prices.filter(price => fromInMs <= price[0] && price[0] <= toInMs),
+    'market_caps': data.market_caps.filter(cap => fromInMs <= cap[0] && cap[0] <= toInMs),
+    'total_volumes': data.total_volumes.filter(vol => fromInMs <= vol[0] && vol[0] <= toInMs)
+  }
   
-  res.status(200).json(data)
+  res.status(200).json(filtered)
 })
 
 module.exports = router

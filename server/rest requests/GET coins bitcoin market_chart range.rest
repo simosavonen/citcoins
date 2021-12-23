@@ -1,1 +1,1 @@
-http://localhost:3001/api/coins/bitcoin/market_chart/range?from=1577836800&to=1609376400
+http://localhost:3001/api/coins/bitcoin/market_chart/range?from=1637445600&to=1640210400
