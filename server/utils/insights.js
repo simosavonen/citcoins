@@ -10,7 +10,7 @@ const longestDowntrend = (prices) => {
   let previousPrice, currentPrice, trendEnded
   let trendStarted = null
   let longestTrend = 0
-  let trend = { 'downtrend': {'found': false }}
+  let trend = { 'longest_downtrend': {'found': false }}
     
   for(let i = 1; i < prices.length; i++) {    
     previousPrice = prices[i - 1]
@@ -20,7 +20,7 @@ const longestDowntrend = (prices) => {
       const trendLength = trendEnded[0] - trendStarted[0]
       if(trendLength > longestTrend) {
         longestTrend = trendLength
-        trend = { 'downtrend': 
+        trend = { 'longest_downtrend': 
               { 'found': true , 
                 'start': trendStarted, 
                 'end': trendEnded }
@@ -36,37 +36,37 @@ const longestDowntrend = (prices) => {
 }
   
 const maxProfit = (prices) => {
-  let max_profit = { 'max_profit': { 'should buy': false, 'profit': 0 } }
-  let buy_price = prices[0]
-  let sell_price, best_sell_price, best_buy_price
+  let maxProfit = { 'max_profit': { 'should_buy': false, 'profit': 0 } }
+  let buyPrice = prices[0]
+  let sellPrice, bestSellPrice, bestBuyPrice
   let profit = 0
   
   for(let i = 0; i < prices.length - 1; i++) {
-    sell_price = prices[i + 1]
+    sellPrice = prices[i + 1]
   
     // a lower price becomes the new price to buy at
-    if(sell_price[1] < buy_price[1]) {
-      buy_price = sell_price
+    if(sellPrice[1] < buyPrice[1]) {
+      buyPrice = sellPrice
     }
   
     // store the best prices if we found a bigger profit
-    else if(profit < sell_price[1] - buy_price[1]) {
-      profit = sell_price[1] - buy_price[1]
-      best_buy_price = buy_price
-      best_sell_price = sell_price
+    else if(profit < sellPrice[1] - buyPrice[1]) {
+      profit = sellPrice[1] - buyPrice[1]
+      bestBuyPrice = buyPrice
+      bestSellPrice = sellPrice
     }
   }
   
   if(profit > 0) {
-    max_profit = { 'max_profit': {
-      'should buy': true,
-      'when to buy': best_buy_price,
-      'when to sell': best_sell_price,
+    maxProfit = { 'max_profit': {
+      'should_buy': true,
+      'when_to_buy': bestBuyPrice,
+      'when_to_sell': bestSellPrice,
       'profit': profit
     }
     }
   }
-  return max_profit
+  return maxProfit
 }
 
 module.exports = {
