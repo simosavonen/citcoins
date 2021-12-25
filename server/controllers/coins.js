@@ -17,7 +17,7 @@ const unsupportedCoinError = (req, res) => {
 
 const unsupportedFiatError = (req, res) => {
   if(req.query.vs_currency !== undefined) {
-    if(!config.FIAT.includes(req.query.vs_currency)) {
+    if(config.FIAT.some(f => f.id !== req.query.vs_currency)) {
       res.status(404).json({
         'error': 'unsupported fiat currency'
       })
@@ -30,11 +30,11 @@ const unsupportedFiatError = (req, res) => {
 const invalidTimestampsError = (req, res) => {
   const from = parseInt(req.query.from)
   const to = parseInt(req.query.to)
-  if(from >= to) {
+  if(from >= to || to > Math.round(+new Date()/1000)) {
     res.status(400).send({ 
       'error': 'invalid timestamps',
-      'from': 'required query parameter, unix timestamp',
-      'to': 'required query parameter, unix timestamp',
+      'from': 'required query parameter, unix timestamp in seconds',
+      'to': 'required query parameter, unix timestamp in seconds',
       'detail': 'the timestamps need to be in chronological order'
     })
     return true
@@ -106,8 +106,8 @@ router.get('/:id/market_chart/range', async (req, res) => {
 
   const fiat = req.query.vs_currency === undefined ? 'eur' : req.query.vs_currency
 
-  let from = parseInt(req.query.from)
-  let to = parseInt(req.query.to) + 60*60
+  const from = parseInt(req.query.from)
+  const to = parseInt(req.query.to) + 60*60
 
   const api_url = `https://api.coingecko.com/api/v3/coins/${req.params.id}/market_chart/range`
   let options = `?vs_currency=${fiat}&from=${from}&to=${to}`
@@ -122,27 +122,28 @@ router.get('/:id/market_chart/range', async (req, res) => {
   const response = await fetch(api_url + options)
   let data = await response.json()  
 
-  // data has the timestamps in milliseconds
-  const fromInMs = from * 1000
-  const toInMs = to * 1000
-
   // limit data to the date range asked
-  data = {
-    'prices': data.prices.filter(price => fromInMs <= price[0] && price[0] <= toInMs),
-    'market_caps': data.market_caps.filter(cap => fromInMs <= cap[0] && cap[0] <= toInMs),
-    'total_volumes': data.total_volumes.filter(vol => fromInMs <= vol[0] && vol[0] <= toInMs)
+  if(to - from < ninetyoneDays) {
+    const fromInMs = from * 1000
+    const toInMs = to * 1000
+    data = {
+      'prices': data.prices.filter(price => fromInMs <= price[0] && price[0] <= toInMs),
+      'market_caps': data.market_caps.filter(cap => fromInMs <= cap[0] && cap[0] <= toInMs),
+      'total_volumes': data.total_volumes.filter(vol => fromInMs <= vol[0] && vol[0] <= toInMs)
+    }
   }
    
-  // todo: only add these if the user asked
-  const max_volume = insights.maxVolume(data.total_volumes)
-  const longest_downtrend = insights.longestDowntrend(data.prices)
-  const max_profit = insights.maxProfit(data.prices)
+  if(req.query.insights === 'true') {
+    data = {
+      ...data,
+      ...insights.maxVolume(data.total_volumes),
+      ...insights.longestDowntrend(data.prices),
+      ...insights.maxProfit(data.prices)
+    }
+  }
   
   res.status(200).json({
-    ...data,
-    ...max_volume,
-    ...longest_downtrend,
-    ...max_profit,
+    ...data,    
     'attribution': 'Data provided by CoinGecko'
   })
 })

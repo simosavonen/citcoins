@@ -10,7 +10,11 @@ const COINS = [{
 }]
 
 // supported fiat currencies
-const FIAT = ['eur']
+const FIAT = [{
+  'id': 'eur',
+  'symbol': '€',
+  'name': 'Euro'
+}]
 
 module.exports = {
   PORT,
