@@ -30,7 +30,7 @@ const unsupportedFiatError = (req, res) => {
 const invalidTimestampsError = (req, res) => {
   const from = parseInt(req.query.from)
   const to = parseInt(req.query.to)
-  if(from >= to || to > Math.round(+new Date()/1000)) {
+  if(from > to || to > Math.round(+new Date()/1000)) {
     res.status(400).send({ 
       'error': 'invalid timestamps',
       'from': 'required query parameter, unix timestamp in seconds',

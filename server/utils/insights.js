@@ -5,7 +5,6 @@ const maxVolume = (volumes) => {
   }
 }
 
-// todo: test does this still work correctly?
 const longestDowntrend = (prices) => {
   let previousPrice, currentPrice, trendEnded
   let trendStarted = null
@@ -28,8 +27,7 @@ const longestDowntrend = (prices) => {
       }
       trendStarted = null      
     }    
-    // in a downtrend
-    if(trendStarted === null) trendStarted = previousPrice
+    if(trendStarted === null) trendStarted = currentPrice
     trendEnded = currentPrice 
   }  
   return trend
