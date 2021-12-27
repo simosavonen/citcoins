@@ -6,7 +6,7 @@ const middleware = require('./utils/middleware')
 const rootRoutes = require('./controllers/root')
 const coinRoutes = require('./controllers/coins')
 
-app.use(morgan('dev'))
+app.use(morgan('dev', { 'skip': () => process.env.NODE_ENV === 'test' }))
 
 app.use('/api/', rootRoutes)
 app.use('/api/coins', coinRoutes)

@@ -6,31 +6,46 @@ const maxVolume = (volumes) => {
 }
 
 const longestDowntrend = (prices) => {
-  let previousPrice, currentPrice, trendEnded
+  let priceNow, priceNext, trendEnded
   let trendStarted = null
   let longestTrend = 0
-  let trend = { 'longest_downtrend': {'found': false }}
-    
-  for(let i = 1; i < prices.length; i++) {    
-    previousPrice = prices[i - 1]
-    currentPrice = prices[i]
-    if(previousPrice[1] < currentPrice[1] && trendStarted !== null) {         
-      // a downtrend just ended   
+  let response = { 'longest_downtrend': {'found': false }}
+  
+  for(let i = 0; i < prices.length - 1; i++) {
+    priceNow = prices[i]
+    priceNext = prices[i + 1]
+
+    // in a downtrend
+    if(priceNow[1] > priceNext[1]) {           
+      trendEnded = priceNext
+      if(trendStarted === null) trendStarted = priceNow  
+    } 
+        
+    // downtrend just ended
+    else if(trendStarted !== null) {         
       const trendLength = trendEnded[0] - trendStarted[0]
       if(trendLength > longestTrend) {
         longestTrend = trendLength
-        trend = { 'longest_downtrend': 
-              { 'found': true , 
-                'start': trendStarted, 
-                'end': trendEnded }
+        response = { 'longest_downtrend': 
+            { 'found': true , 
+              'start': trendStarted, 
+              'end': trendEnded }
         }
       }
-      trendStarted = null      
-    }    
-    if(trendStarted === null) trendStarted = currentPrice
-    trendEnded = currentPrice 
-  }  
-  return trend
+      trendStarted = null
+    } 
+    
+  }
+  // edge case, donwtrend continued from start to finish
+  if(trendStarted !== null && longestTrend === 0) {
+    response = { 'longest_downtrend': 
+            { 'found': true , 
+              'start': trendStarted, 
+              'end': trendEnded }
+    } 
+  }
+
+  return response
 }
   
 const maxProfit = (prices) => {
