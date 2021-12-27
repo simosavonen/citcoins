@@ -18,6 +18,13 @@ test('unsupported coin returns an error', async () => {
     .expect({ 'error': 'unsupported cryptocurrency' })
 })
 
+test('unsupported fiat returns an error', async () => {
+  await api
+    .get('/api/coins/bitcoin/market_chart?vs_currency=usd')
+    .expect(404)
+    .expect({ 'error': 'unsupported fiat currency' })
+})
+
 test('unknown endpoint returns an error', async () => {
   await api
     .get('/api/crypto')

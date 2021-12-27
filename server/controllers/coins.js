@@ -116,7 +116,7 @@ router.get('/:id/market_chart/range', async (req, res) => {
   // by ensuring we always ask data for at least 91 days
   const ninetyoneDays = 60*60*24*91
   if(to - from < ninetyoneDays) {
-    options = `?vs_currency=eur&from=${to - ninetyoneDays}&to=${to}`
+    options = `?vs_currency=${fiat}&from=${to - ninetyoneDays}&to=${to}`
   } 
 
   const response = await fetch(api_url + options)
