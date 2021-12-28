@@ -2,7 +2,7 @@
 A crypto price discovery tool for the time travelling investor.
 
 ## live demo
-https://hidden-dusk-96983.herokuapp.com/api/
+https://citcoins.herokuapp.com/api/
 
 ### tips
 Push server subdirectory to heroku
