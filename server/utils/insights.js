@@ -10,6 +10,8 @@ const longestDowntrend = (prices) => {
   let trendStarted = null
   let longestTrend = 0
   let response = { 'longest_downtrend': {'found': false }}
+
+  if(prices.length < 2) return response
   
   for(let i = 0; i < prices.length - 1; i++) {
     priceNow = prices[i]
@@ -54,6 +56,8 @@ const maxProfit = (prices) => {
   let buyPrice = prices[0]
   let sellPrice, bestSellPrice, bestBuyPrice
   let profit = 0
+
+  if(prices.length < 2) return maxProfit
   
   for(let i = 0; i < prices.length - 1; i++) {
     sellPrice = prices[i + 1]
