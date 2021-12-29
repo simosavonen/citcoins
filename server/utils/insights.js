@@ -29,7 +29,8 @@ const longestDowntrend = (prices) => {
         response = { 'longest_downtrend': 
             { 'found': true , 
               'start': trendStarted, 
-              'end': trendEnded }
+              'end': trendEnded,
+              'length_in_days': (trendEnded[0] - trendStarted[0]) /1000/60/60/24 }
         }
       }
       trendStarted = null
