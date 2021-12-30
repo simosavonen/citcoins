@@ -28,6 +28,15 @@ const unsupportedFiatError = (req, res) => {
 }
 
 const invalidTimestampsError = (req, res) => {
+  if(req.query.from === undefined || req.query.to === undefined) {
+    res.status(400).send({ 
+      'error': 'missing required parameters',
+      'from': 'required query parameter, unix timestamp in seconds',
+      'to': 'required query parameter, unix timestamp in seconds'
+    })
+    return true
+  }
+
   const from = parseInt(req.query.from)
   const to = parseInt(req.query.to)
   if(from > to || to > Math.round(+new Date()/1000)) {
@@ -49,6 +58,9 @@ router.get('/', (req, res) => {
       'list': {
         'href': '/list'
       },
+      'id': {
+        'href': '/:id'
+      }
     }
   })
 })
