@@ -25,10 +25,7 @@
 - [Live demo](#demo)
 - [API reference](#apidoc)
 - [Getting Started](#getting_started)
-- [Deployment](#deployment)
-- [Usage](#usage)
 - [Built Using](#built_using)
-- [TODO](../TODO.md)
 
 
 ## 🧐 About <a name = "about"></a>
@@ -47,6 +44,31 @@ The API is running at https://citcoins.herokuapp.com/api/
 To get daily prices, volumes and market caps for bitcoin in euros for the first week of December 2021, with the insights for longest downtrend, day with the highest volume and maximum profit included, send a GET request to
 
 https://citcoins.herokuapp.com/api/coins/bitcoin/market_chart/range?from=1638309600&to=1638828000&insights=true
+
+The response JSON has the unix timestamps in milliseconds:
+
+```json
+{
+  "prices" : [...],
+  "market_caps" : [...],
+  "total_volumes" : [...],
+  "max_volume" : [1638662400000, 49444429183.12263],
+  "longest_downtrend" : { 
+    "found" : true,
+    "start" : [1638403200000, 50506.910551023844],
+    "end" : [1638662400000, 43452.36627055587],
+    "length_in_days" : 3
+  },
+  "max_profit" : { 
+    "should_buy" : true,
+    "when_to_buy" : [1638316800000, 50310.23157858034],
+    "when_to_sell" : [1638403200000, 50506.910551023844],
+    "profit" : 196.67897244350752 
+  },
+  "attribution" : "Data provided by CoinGecko"
+}
+
+```
 
 ## 📓 API reference <a name = "apidoc"></a>
 The Citcoins API is organized around REST. The API has predictable resource-oriented URLs, returns JSON-encoded responses, and uses standard HTTP response codes.
