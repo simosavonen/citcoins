@@ -49,9 +49,9 @@ The response JSON has the unix timestamps in milliseconds:
 
 ```json
 {
-  "prices" : [...],
-  "market_caps" : [...],
-  "total_volumes" : [...],
+  "prices" : [],
+  "market_caps" : [],
+  "total_volumes" : [],
   "max_volume" : [1638662400000, 49444429183.12263],
   "longest_downtrend" : { 
     "found" : true,
